@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from telegram import Update, Message, User, Chat
 from unittest import TestCase, main
+from telegram import Update, Message, User, Chat
 
 # >>> up = bot.getUpdates()
 # >>> print(up[1])

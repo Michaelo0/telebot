@@ -4,6 +4,9 @@ from unittest import TestCase, main
 
 
 class FakeTelegramBot:
+	def __init__(self):
+		self.json = {}
+
 	def sendMessage(self, **kwargs):
 		self.json = kwargs
 

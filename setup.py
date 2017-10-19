@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 
+import glob
+import io
+import sys
 from distutils.core import setup, Command
 from unittest import TestLoader, TextTestRunner
-import glob
+
 import pycodestyle
-import sys
+from pylint.lint import Run
+from pylint.reporters.text import TextReporter
 
 
 class Style(Command):
@@ -19,14 +23,26 @@ class Style(Command):
 	def files(self):
 		return glob.iglob('**/*.py', recursive=True)
 
+	def pep8(self, f):
+		return pycodestyle.Checker(f, ignore=['W191']).check_all() == 0
+
+	def pylint(self, f):
+		out = io.StringIO()
+		Run([f], reporter=TextReporter(out), exit=False)
+		if len(out.getvalue()) > 0:
+			print(out.getvalue())
+			return False
+		return True
+
+	def check(self, f):
+		return all((
+			self.pep8(f),
+			self.pylint(f)
+		))
+
 	def run(self):
 		try:
-			total_errors = 0
-			for f in self.files():
-				pep8_errors = pycodestyle.Checker(f, ignore=['W191']).check_all()
-				if pep8_errors != 0:
-					total_errors = total_errors + 1
-			if total_errors != 0:
+			if not all((self.check(f) for f in self.files())):
 				print("Style check failed")
 				sys.exit(-1)
 		except Exception as e:
